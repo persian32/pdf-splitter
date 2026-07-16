@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>학생별 답안지 분할기</title>
+<title>PDF Splitter</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -100,11 +100,11 @@
   .chunk{
     background:var(--card); border:1px solid var(--line); border-radius:8px;
     padding:10px; position:relative;
-    box-shadow:2px 2px 0 var(--line), 4px 4px 0 #EFEDE4; /* 답안지 묶음 */
+    box-shadow:2px 2px 0 var(--line), 4px 4px 0 #EFEDE4; /* 서류 묶음 */
   }
   .chunk.excluded{opacity:.5;}
   .chunk.excluded::after{
-    content:"결시 · 제외됨"; position:absolute; inset:auto 8px 8px 8px;
+    content:"제외됨"; position:absolute; inset:auto 8px 8px 8px;
     background:var(--danger-soft); color:var(--danger); border:1px solid var(--danger);
     font-size:12px; font-weight:700; text-align:center; border-radius:4px; padding:2px;
   }
@@ -139,8 +139,8 @@
 <body>
 
 <header>
-  <h1><span class="grid-mark">▦</span> 학생별 답안지 분할기</h1>
-  <p>스캔한 답안지 PDF 한 파일을 학생별 PDF로 나눕니다. 결시생 자리에는 빈 종이를 넣어 스캔하는 것을 권장합니다.</p>
+  <h1><span class="grid-mark">▦</span> PDF Splitter</h1>
+  <p>스캔한 PDF 한 파일을 개인별로 나눕니다. 미제출자 자리에는 빈 종이를 넣어 스캔하는 것을 권장합니다.</p>
   <span class="privacy">모든 처리는 이 브라우저 안에서만 — 파일이 서버로 전송되지 않습니다</span>
 </header>
 
@@ -151,7 +151,7 @@
     <div class="step-head">
       <span class="step-no">1</span>
       <div><div class="step-title">PDF 파일과 분할 기준</div>
-      <div class="step-sub">한 반 전체가 스캔된 PDF 하나를 올리세요.</div></div>
+      <div class="step-sub">여러 사람 분량이 이어 스캔된 PDF 하나를 올리세요.</div></div>
     </div>
     <div class="filedrop" id="drop" role="button" tabindex="0" aria-label="PDF 파일 선택">
       <strong>PDF 선택</strong> 또는 여기로 끌어다 놓기
@@ -160,7 +160,7 @@
     <input type="file" id="file" accept="application/pdf" hidden>
     <div class="row" style="margin-top:14px">
       <div>
-        <label for="ppn">학생당 쪽수</label>
+        <label for="ppn">1인당 쪽수</label>
         <select id="ppn">
           <option value="1">1쪽</option>
           <option value="2" selected>2쪽</option>
@@ -175,14 +175,14 @@
     </div>
   </section>
 
-  <!-- 2단계: 명렬 -->
+  <!-- 2단계: 이름 목록 -->
   <section class="step" id="step2" data-off="1">
     <div class="step-head">
       <span class="step-no">2</span>
-      <div><div class="step-title">명렬표 붙여넣기 (선택)</div>
-      <div class="step-sub">한 줄에 한 명, 번호순. 엑셀에서 번호·이름 열을 복사해 붙여도 됩니다. 비워두면 순번만으로 이름이 붙습니다.</div></div>
+      <div><div class="step-title">이름 목록 붙여넣기 (선택)</div>
+      <div class="step-sub">한 줄에 한 명, 파일에 담긴 순서대로. 엑셀에서 번호·이름 열을 복사해 붙여도 됩니다. 비워두면 순번만 붙습니다.</div></div>
     </div>
-    <textarea id="roster" placeholder="1	김서영&#10;2	김서윤&#10;3	김하루&#10;… 또는 이름만 한 줄씩"></textarea>
+    <textarea id="roster" placeholder="1	김서영&#10;2	김서윤&#10;3	김하루&#10;… 또는 이름만 한 줄씩 (번호순)"></textarea>
     <div class="btnrow">
       <button class="green" id="split">분할하기</button>
       <span class="progress" id="prog1"></span>
@@ -195,7 +195,11 @@
     <div class="step-head">
       <span class="step-no">3</span>
       <div><div class="step-title">조각 확인</div>
-      <div class="step-sub">각 카드의 첫 쪽이 그 학생의 표지인지 확인하세요. 어긋난 곳부터 ‘빈 쪽 삽입(밀기)’ 또는 ‘첫 쪽 제거(당기기)’로 맞춥니다. 빈 종이 조각은 ‘결시’로 표시해 제외하세요.</div></div>
+      <div class="step-sub">각 카드의 첫 쪽이 그 사람의 첫 장인지 확인하세요. 어긋난 곳부터 ‘빈 쪽 삽입(밀기)’ 또는 ‘첫 쪽 제거(당기기)’로 맞춥니다. 빈 종이 조각은 ‘제외’로 표시하세요.</div></div>
+    </div>
+    <div class="btnrow" style="margin-top:0; margin-bottom:4px">
+      <button class="ghost" id="rotall">전체 90° 회전 <span id="rotstate"></span></button>
+      <span class="step-sub">누를 때마다 90°씩 — 모든 조각에 적용되고, 카드의 ‘회전’은 그 위에 개별로 더해집니다.</span>
     </div>
     <div class="chunks" id="chunks"></div>
     <div class="notice" id="note3"></div>
@@ -206,7 +210,7 @@
     <div class="step-head">
       <span class="step-no">4</span>
       <div><div class="step-title">내려받기</div>
-      <div class="step-sub">카드마다 개별 저장하거나, 제외한 학생을 뺀 전체를 ZIP 하나로 받으세요.</div></div>
+      <div class="step-sub">카드마다 개별 저장하거나, 제외한 조각을 뺀 전체를 ZIP 하나로 받으세요.</div></div>
     </div>
     <div class="btnrow">
       <button class="green" id="zipall">전체 ZIP으로 내려받기</button>
@@ -229,8 +233,11 @@ const S = {
   seq:[],           // [{kind:'real', page:1..N} | {kind:'blank'}]
   roster:[],        // [{num, name}]
   excluded:new Set(),
-  thumbCache:new Map(), // page -> canvas
+  thumbCache:new Map(), // `${page}@${rot}` -> canvas
+  globalRot:0,          // 전체 회전 (0/90/180/270)
+  chunkRot:new Map(),   // 조각별 추가 회전
 };
+function rotOf(i){ return (S.globalRot + (S.chunkRot.get(i)||0)) % 360; }
 const $ = id => document.getElementById(id);
 const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
 
@@ -265,7 +272,7 @@ async function loadFile(f){
   }
 }
 
-/* ---------- 명렬 파싱 ---------- */
+/* ---------- 이름 목록 파싱 ---------- */
 function parseRoster(text){
   const out = [];
   text.split(/\r?\n/).forEach(line=>{
@@ -290,10 +297,10 @@ on("split","click",()=>{
   const n2 = $("note2");
   if(S.numPages % N !== 0){
     n2.className = "notice warn";
-    n2.textContent = `전체 ${S.numPages}쪽은 학생당 ${N}쪽으로 나누어떨어지지 않습니다 (${chunkCount}조각, 마지막 조각 ${S.numPages % N}쪽). 스캔 누락이나 여분 쪽이 있는지 3단계에서 확인하세요.`;
+    n2.textContent = `전체 ${S.numPages}쪽은 1인당 ${N}쪽으로 나누어떨어지지 않습니다 (${chunkCount}조각, 마지막 조각 ${S.numPages % N}쪽). 스캔 누락이나 여분 쪽이 있는지 3단계에서 확인하세요.`;
   }else if(S.roster.length && S.roster.length !== chunkCount){
     n2.className = "notice warn";
-    n2.textContent = `명렬표 ${S.roster.length}명 ↔ 조각 ${chunkCount}개 — 수가 다릅니다. 결시생 빈 종이 누락이 없는지 확인하세요.`;
+    n2.textContent = `이름 목록 ${S.roster.length}명 ↔ 조각 ${chunkCount}개 — 수가 다릅니다. 미제출자 빈 종이 누락이 없는지 확인하세요.`;
   }else{
     n2.className = "notice ok";
     n2.textContent = `${chunkCount}개 조각으로 나눴습니다. 아래에서 확인하세요.`;
@@ -325,16 +332,18 @@ function renderChunks(){
     const card = document.createElement("div");
     card.className = "chunk" + (S.excluded.has(i) ? " excluded" : "");
     const pagesTxt = chunk.map(x=>x.kind==="real"?x.page:"빈쪽").join(", ");
+    const rot = rotOf(i);
     card.innerHTML = `
       <div class="chunk-name"><span>${lab.name}</span><span class="no">${lab.no}</span></div>
       <div class="thumbwrap" id="th${i}"><span class="blank">불러오는 중…</span></div>
-      <div class="chunk-pages">원본 ${pagesTxt} 쪽</div>
+      <div class="chunk-pages">원본 ${pagesTxt} 쪽${rot ? ` · ${rot}° 회전` : ""}</div>
       <div class="chunk-tools">
+        <button data-act="rot" data-i="${i}" title="이 조각만 90°씩 더 돌립니다">회전</button>
         <button data-act="blank" data-i="${i}" title="이 조각 앞에 빈 쪽을 넣어 이후 전체를 뒤로 밉니다">빈 쪽 삽입</button>
         <button data-act="pull" data-i="${i}" title="이 조각의 첫 쪽을 빼서 이후 전체를 앞으로 당깁니다">첫 쪽 제거</button>
-        <button data-act="skip" data-i="${i}">${S.excluded.has(i)?"결시 해제":"결시"}</button>
+        <button data-act="skip" data-i="${i}">${S.excluded.has(i)?"제외 해제":"제외"}</button>
       </div>
-      <button class="chunk-dl" data-act="dl" data-i="${i}">이 학생 PDF 저장</button>
+      <button class="chunk-dl" data-act="dl" data-i="${i}">이 PDF 저장</button>
     `;
     wrap.appendChild(card);
     drawThumb(i, chunk);
@@ -343,16 +352,25 @@ function renderChunks(){
   const n3 = $("note3");
   if(missing){
     n3.className="notice warn";
-    n3.textContent=`명렬표(${S.roster.length}명)와 조각(${chunks.length}개) 수가 달라 이름이 순서대로만 붙었습니다. 확인 후 명렬표를 고치고 다시 분할하세요.`;
+    n3.textContent=`이름 목록(${S.roster.length}명)과 조각(${chunks.length}개) 수가 달라 이름이 순서대로만 붙었습니다. 확인 후 목록을 고치고 다시 분할하세요.`;
   } else { n3.className="notice"; n3.textContent=""; }
 }
+
+on("rotall","click",()=>{
+  S.globalRot = (S.globalRot + 90) % 360;
+  $("rotstate").textContent = S.globalRot ? `(현재 ${S.globalRot}°)` : "";
+  renderChunks();
+});
 
 wrapClick = $("chunks").addEventListener("click", e=>{
   const b = e.target.closest("button"); if(!b) return;
   const i = parseInt(b.dataset.i,10);
   const N = parseInt($("ppn").value,10);
   const act = b.dataset.act;
-  if(act==="blank"){
+  if(act==="rot"){
+    S.chunkRot.set(i, ((S.chunkRot.get(i)||0)+90)%360);
+    renderChunks();
+  }else if(act==="blank"){
     S.seq.splice(i*N, 0, {kind:"blank"});
     renderChunks();
   }else if(act==="pull"){
@@ -372,18 +390,21 @@ wrapClick = $("chunks").addEventListener("click", e=>{
 async function drawThumb(i, chunk){
   const holder = $("th"+i);
   const first = chunk.find(x=>x.kind==="real");
-  if(!first){ holder.innerHTML = '<span class="blank">빈 쪽 (결시 후보)</span>'; return; }
+  if(!first){ holder.innerHTML = '<span class="blank">빈 쪽 (제외 후보)</span>'; return; }
   try{
-    let canvas = S.thumbCache.get(first.page);
+    const rot = rotOf(i);
+    const key = `${first.page}@${rot}`;
+    let canvas = S.thumbCache.get(key);
     if(!canvas){
       const page = await S.pdfjs.getPage(first.page);
-      const vp0 = page.getViewport({scale:1});
+      const baseRot = (page.rotate + rot) % 360;
+      const vp0 = page.getViewport({scale:1, rotation:baseRot});
       const scale = 260 / vp0.width;
-      const vp = page.getViewport({scale});
+      const vp = page.getViewport({scale, rotation:baseRot});
       canvas = document.createElement("canvas");
       canvas.width = vp.width; canvas.height = vp.height;
       await page.render({canvasContext:canvas.getContext("2d"), viewport:vp}).promise;
-      S.thumbCache.set(first.page, canvas);
+      S.thumbCache.set(key, canvas);
     }
     holder.innerHTML = "";
     holder.appendChild(canvas.cloneNode ? cloneCanvas(canvas) : canvas);
@@ -409,16 +430,23 @@ function chunkFilename(i){
   const lab = chunkLabel(i);
   const prefix = $("prefix").value.trim();
   const safe = lab.name.replace(/[\\/:*?"<>|]/g,"").replace(/\s+/g,"");
-  return `${prefix}${lab.no}_${safe==="(이름없음)"?"학생":safe}.pdf`;
+  return `${prefix}${lab.no}_${safe==="(이름없음)"?"미상":safe}.pdf`;
 }
 async function buildChunkPdf(i){
   const chunks = chunksOf();
   const pages = chunks[i].filter(x=>x.kind==="real").map(x=>x.page-1);
   if(!pages.length) return null;
+  const rot = rotOf(i);
   const src = await getLibDoc();
   const out = await PDFLib.PDFDocument.create();
   const copied = await out.copyPages(src, pages);
-  copied.forEach(p=>out.addPage(p));
+  copied.forEach(p=>{
+    if(rot){
+      const cur = p.getRotation().angle || 0;
+      p.setRotation(PDFLib.degrees((cur + rot) % 360));
+    }
+    out.addPage(p);
+  });
   return await out.save();
 }
 async function downloadChunk(i){
@@ -447,7 +475,7 @@ on("zipall","click", async ()=>{
     prog.textContent = "ZIP 압축 중…";
     const blob = await zip.generateAsync({type:"blob"});
     const prefix = $("prefix").value.trim();
-    saveBlob(blob, `${prefix||"답안지_분할_"}전체.zip`);
+    saveBlob(blob, `${prefix||"PDF_분할_"}전체.zip`);
     prog.textContent = `완료 — ${done}명 분량을 내려받았습니다.`;
   }catch(err){
     console.error(err);
