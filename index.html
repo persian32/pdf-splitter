@@ -170,7 +170,7 @@
       </div>
       <div>
         <label for="prefix">파일명 접두어 (선택)</label>
-        <input type="text" id="prefix" placeholder="예: 2-7_ (결과: 2-7_01_김서영.pdf)">
+        <input type="text" id="prefix" placeholder="예: 프로젝트명_학급_ (결과: 프로젝트명_학급_01_정화선.pdf)">
       </div>
     </div>
   </section>
@@ -182,7 +182,7 @@
       <div><div class="step-title">이름 목록 붙여넣기 (선택)</div>
       <div class="step-sub">한 줄에 한 명, 파일에 담긴 순서대로. 엑셀에서 번호·이름 열을 복사해 붙여도 됩니다. 비워두면 순번만 붙습니다.</div></div>
     </div>
-    <textarea id="roster" placeholder="1	김서영&#10;2	김서윤&#10;3	김하루&#10;… 또는 이름만 한 줄씩 (번호순)"></textarea>
+    <textarea id="roster" placeholder="1	정화선&#10;2	조은영&#10;3	장인석&#10;… 또는 이름만 한 줄씩 (번호순)"></textarea>
     <div class="btnrow">
       <button class="green" id="split">분할하기</button>
       <span class="progress" id="prog1"></span>
@@ -221,7 +221,7 @@
 </main>
 
 <footer>
-  분할 결과 파일명: 접두어 + 번호 + 이름 (예: 2-7_01_김서영.pdf) · 새로고침하면 모든 데이터가 사라집니다.
+  분할 결과 파일명: 접두어 + 번호 + 이름 (예: 프로젝트명_학급_01_정화선.pdf) · 새로고침하면 모든 데이터가 사라집니다.
 </footer>
 
 <script>
