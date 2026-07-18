@@ -380,8 +380,6 @@ function renderChunks(){
       <div class="chunk-pages">원본 ${pagesTxt} 쪽${rot ? ` · ${rot}° 회전` : ""}</div>
       <div class="chunk-tools">
         <button data-act="rot" data-i="${i}" title="이 조각만 90°씩 더 돌립니다">회전</button>
-        <button data-act="blank" data-i="${i}" title="이 조각 앞에 빈 쪽을 넣어 이후 전체를 뒤로 밉니다">빈 쪽 삽입</button>
-        <button data-act="pull" data-i="${i}" title="이 조각의 첫 쪽을 빼서 이후 전체를 앞으로 당깁니다">첫 쪽 제거</button>
         <button data-act="skip" data-i="${i}">${S.excluded.has(i)?"제외 해제":"제외"}</button>
       </div>
       <button class="chunk-dl" data-act="dl" data-i="${i}">이 조각 저장</button>
@@ -410,15 +408,6 @@ wrapClick = $("chunks").addEventListener("click", e=>{
   const act = b.dataset.act;
   if(act==="rot"){
     S.chunkRot.set(i, ((S.chunkRot.get(i)||0)+90)%360);
-    renderChunks();
-  }else if(act==="blank"){
-    S.seq.splice(i*N, 0, {kind:"blank"});
-    renderChunks();
-  }else if(act==="pull"){
-    const target = S.seq[i*N];
-    if(!target) return;
-    if(target.kind==="real" && !confirm(`원본 ${target.page}쪽을 분할 대상에서 제거합니다. 이후 조각이 모두 앞으로 당겨집니다. 계속할까요?`)) return;
-    S.seq.splice(i*N, 1);
     renderChunks();
   }else if(act==="skip"){
     S.excluded.has(i) ? S.excluded.delete(i) : S.excluded.add(i);
