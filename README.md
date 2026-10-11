@@ -1,5 +1,18 @@
 # PDF Splitter
 
+**▶ Live site / 바로 열기:** https://persian32.github.io/pdf-splitter/ (in Korean)
+
+**English summary**
+
+- **What it does:** Splits one scanned PDF of many students' papers into one file per student and names each file from a pasted class list.
+- **Why:** Ordinary PDF tools give files like document_1 … document_23, and renaming them by hand takes time. Thumbnails, boundary fixes, rotation, and skipping blank sheets help the teacher check that each file belongs to the right student.
+- **Privacy:** Everything happens in the browser. Files are never uploaded.
+- **My role:** I found the problem in my own work and decided what the tool should and should not do. The code was written with AI coding tools (Claude Code).
+
+---
+
+**한국어 설명**
+
 스캔한 PDF 한 파일을 **개인별 PDF로 나누고, 명단대로 이름을 붙여** 내려받는 도구.
 
 여러 사람 분량이 이어 스캔된 서류(답안지, 설문지, 제출물 등)를 1인당 N쪽씩 잘라
